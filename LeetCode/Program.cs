@@ -1,70 +1,94 @@
 ﻿using System;
+using System.Collections;
 
 namespace LeetCode
 {
-    // easy 67: Даны две двоичные строки a и b, вернуть их сумму в виде двоичной строки.
-    // ref:  https://leetcode.com/problems/add-binary/description/
+    // hard 4: Даны два отсортированных массива nums1 и nums2 размером m и n соответственно, вернуть медиану двух отсортированных массивов.
+    // Общая сложность времени выполнения должна быть O(log (m+n)).
+    // https://leetcode.com/problems/median-of-two-sorted-arrays/description/
     public static class Program
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine(AddBinary("11", "1"));
+            var result = FindMedianSortedArrays([2], [2]);
+
+            Console.WriteLine(result);
+
             Console.ReadKey();
         }
 
-        static string AddBinary(string a, string b)
+        static double FindMedianSortedArrays(int[] nums1, int[] nums2)
         {
-            if (a.Length != b.Length)
-            {
-                var countZeros = Math.Abs(a.Length - b.Length);
+            if (IsExtremeConditions(nums1, nums2, out double result))
+                return result;
 
-                if (a.Length < b.Length)
-                    a = new string('0', countZeros) + a;
-                else if (b.Length < a.Length)
-                    b = new string('0', countZeros) + b;
+            var isPairMedian = (nums1.Length + nums2.Length) % 2 == 0;
+            var medianIndex = (nums1.Length + nums2.Length) / 2 + 1;
+
+            var leftEnumerator = nums1.GetEnumerator();
+            var rightEnumerator = nums2.GetEnumerator();
+            leftEnumerator.MoveNext();
+
+            int currentIndex = 0;
+            int currentValue = (int)leftEnumerator.Current;
+            int prevValue = 0;
+
+            while (currentIndex < medianIndex)
+            {
+                prevValue = currentValue;
+
+                currentValue = GetSmallerValue(ref leftEnumerator, ref rightEnumerator);
+
+                currentIndex++;
             }
 
-            var result = Sum(a, b);
-
-            return result.transfer
-                ? "1" + result.result
-                : result.result;
+            return isPairMedian ? (double)(currentValue + prevValue) / 2 : currentValue;
         }
 
-        static (string result, bool transfer) Sum(string a, string b)
+        static int GetSmallerValue(ref IEnumerator current, ref IEnumerator second)
         {
-            if (a.Length == 1)
-                return Concat(a, b, false);
+            if (second.MoveNext())
+            {
+                bool currentSmaller = (int)current.Current < (int)second.Current;
+                if (currentSmaller)
+                {
+                    var newSecond = current;
+                    current = second;
+                    second = newSecond;
+                    return (int)newSecond.Current;
+                }
+                else
+                    return (int)second.Current;
+            }
 
-            var sum = Sum(CutFirstChar(a), CutFirstChar(b));
-
-            var concat = Concat(GetFirstChar(a), GetFirstChar(b), sum.transfer);
-
-            return (concat.result + sum.result, concat.transfer);
-            string CutFirstChar(string str) => str.Substring(1, str.Length - 1);
-            string GetFirstChar(string str) => str[0].ToString();
+            var currentValue = (int)current.Current;
+            current.MoveNext();
+            return currentValue;
         }
 
-        static (string result, bool transfer) Concat(string a, string b, bool add)
+        static bool IsExtremeConditions(int[] nums1, int[] nums2, out double result)
         {
-            if (add)
+            bool hasEmptyArray = nums1.Length == 0 || nums2.Length == 0;
+            if (hasEmptyArray)
             {
-                if (a == "1" && b == "1")
-                    return ("1", true);
-                else if (a == "0" && b == "0")
-                    return ("1", false);
+                var notEmptyArray = nums1.Length == 0 ? nums2 : nums1;
 
-                return ("0", true);
+                var isPairMedian = notEmptyArray.Length % 2 == 0;
+                if (isPairMedian)
+                {
+                    var rightIndex = notEmptyArray.Length / 2;
+                    result = (double)(notEmptyArray[rightIndex - 1] + notEmptyArray[rightIndex]) / 2;
+                    return true;
+                }
+                else
+                {
+                    result = notEmptyArray[notEmptyArray.Length / 2];
+                    return true;
+                }
             }
-            else
-            {
-                if (a == "1" && b == "1")
-                    return ("0", true);
-                else if (a == "0" && b == "0")
-                    return ("0", false);
 
-                return ("1", false);
-            }
+            result = 0;
+            return false;
         }
     }
 }
