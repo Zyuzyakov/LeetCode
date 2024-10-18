@@ -1,37 +1,47 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace LeetCode
 {
-    // easy 69: Дано неотрицательное целое число x, вернуть квадратный корень x округленного вниз до ближайшего целого числа.
-    // ref: https://leetcode.com/problems/sqrtx/description/
+    // hard 135: Дети n стоят в ряд. Каждому ребенку присваивается рейтинговое значение, указанное в целочисленном массиве ratings.
+    // ref: https://leetcode.com/problems/candy/
     public static class Program
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine(MySqrt(2147395599));
+            Console.WriteLine(Candy([1, 2, 87, 87, 87, 2, 1]));
             Console.ReadKey();
         }
 
-        static int MySqrt(int x)
+        static int Candy(int[] ratings)
         {
-            if (x == 0)
-                return 0;
+            var dict = new Dictionary<string, ushort>();
 
-            if (x == 1)
-                return 1;
-
-            uint val = 1;
-            while (true)
+            for (int i = 1; i < ratings.Length; i++)
             {
-                uint next = val + 1;
-                if (next * next > x)
-                    return (int)val;
-                else
+                if (ratings[i] > ratings[i - 1])
                 {
-                    val = next;
-                    continue;
+                    dict.TryGetValue((i - 1).ToString(), out ushort prevValue);
+
+                    dict[i.ToString()] = (ushort)(prevValue + 1);
                 }
             }
+
+            for (int i = ratings.Length - 2; i >= 0; i--)
+            {
+                if (ratings[i] > ratings[i + 1])
+                {
+                    dict.TryGetValue((i + 1).ToString(), out ushort prevValue);
+
+                    dict.TryGetValue(i.ToString(), out ushort iValue);
+
+                    if (iValue <= prevValue)
+                        dict[i.ToString()] = (ushort)(prevValue + 1);
+                }
+            }
+
+            return dict.Sum(x => x.Value) + ratings.Length;
         }
     }
 }
