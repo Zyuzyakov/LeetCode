@@ -1,47 +1,58 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace LeetCode
 {
-    // hard 135: Дети n стоят в ряд. Каждому ребенку присваивается рейтинговое значение, указанное в целочисленном массиве ratings.
-    // ref: https://leetcode.com/problems/candy/
+    // hard 32: Для данной строки, содержащей только символы '(' и ')', вернуть длину самых длинных допустимых (правильно сформированных) скобок.
+    // ref: https://leetcode.com/problems/longest-valid-parentheses/description/
     public static class Program
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine(Candy([1, 2, 87, 87, 87, 2, 1]));
+            Console.WriteLine(LongestValidParentheses(")()())()()("));
             Console.ReadKey();
         }
 
-        static int Candy(int[] ratings)
+        static int LongestValidParentheses(string s)
         {
-            var dict = new Dictionary<string, ushort>();
-
-            for (int i = 1; i < ratings.Length; i++)
+            int bestParenthesesCount = 0;
+            for (int i = 0; i < s.Length; i++)
             {
-                if (ratings[i] > ratings[i - 1])
+                if (s[i] == '(')
                 {
-                    dict.TryGetValue((i - 1).ToString(), out ushort prevValue);
+                    var parentheses = new SequenceParentheses();
 
-                    dict[i.ToString()] = (ushort)(prevValue + 1);
+                    for (int j = i; j < s.Length; j++)
+                    {
+                        parentheses.AddParenthesis(s[j]);
+
+                        if (parentheses.IsBad)
+                            break;
+
+                        if (parentheses.IsValid && parentheses.CountChars > bestParenthesesCount)
+                            bestParenthesesCount = parentheses.CountChars;
+                    }
                 }
             }
 
-            for (int i = ratings.Length - 2; i >= 0; i--)
+            return bestParenthesesCount;
+        }
+
+        private class SequenceParentheses
+        {
+            public int CountChars { get => _open + _close; }
+            public bool IsValid { get => _open == _close; }
+            public bool IsBad { get => _open < _close; }
+
+            private int _open;
+            private int _close;
+
+            public void AddParenthesis(char parenthesis)
             {
-                if (ratings[i] > ratings[i + 1])
-                {
-                    dict.TryGetValue((i + 1).ToString(), out ushort prevValue);
-
-                    dict.TryGetValue(i.ToString(), out ushort iValue);
-
-                    if (iValue <= prevValue)
-                        dict[i.ToString()] = (ushort)(prevValue + 1);
-                }
+                if (parenthesis == '(')
+                    _open++;
+                else
+                    _close++;
             }
-
-            return dict.Sum(x => x.Value) + ratings.Length;
         }
     }
 }
