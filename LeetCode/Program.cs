@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace LeetCode
 {
@@ -8,51 +9,35 @@ namespace LeetCode
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine(LongestValidParentheses(")()())()()("));
+            string sample = "((()()";
+            Console.WriteLine(sample);
+            Console.WriteLine(LongestValidParentheses(sample));
             Console.ReadKey();
         }
 
         static int LongestValidParentheses(string s)
         {
-            int bestParenthesesCount = 0;
+            const char open = '(';
+
+            int max = 0;
+            var stack = new Stack<int>();
+            stack.Push(-1);
+
             for (int i = 0; i < s.Length; i++)
             {
-                if (s[i] == '(')
+                if (s[i] == open)
+                    stack.Push(i);
+                else
                 {
-                    var parentheses = new SequenceParentheses();
-
-                    for (int j = i; j < s.Length; j++)
-                    {
-                        parentheses.AddParenthesis(s[j]);
-
-                        if (parentheses.IsBad)
-                            break;
-
-                        if (parentheses.IsValid && parentheses.CountChars > bestParenthesesCount)
-                            bestParenthesesCount = parentheses.CountChars;
-                    }
+                    stack.TryPop(out int pop);
+                    if (stack.Count == 0)
+                        stack.Push(i);
+                    else
+                        max = Math.Max(max, i - stack.Peek());
                 }
             }
 
-            return bestParenthesesCount;
-        }
-
-        private class SequenceParentheses
-        {
-            public int CountChars { get => _open + _close; }
-            public bool IsValid { get => _open == _close; }
-            public bool IsBad { get => _open < _close; }
-
-            private int _open;
-            private int _close;
-
-            public void AddParenthesis(char parenthesis)
-            {
-                if (parenthesis == '(')
-                    _open++;
-                else
-                    _close++;
-            }
+            return max;
         }
     }
 }
