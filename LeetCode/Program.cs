@@ -1,43 +1,46 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace LeetCode
 {
-    // hard 32: Для данной строки, содержащей только символы '(' и ')', вернуть длину самых длинных допустимых (правильно сформированных) скобок.
-    // ref: https://leetcode.com/problems/longest-valid-parentheses/description/
+    // easy 35: Дано отсортированное множество различных целых чисел и целевое значение, вернуть индекс, если цель найдена.
+    // Если нет, вернуть индекс, где бы он был, если бы он был вставлен по порядку.
+    // Вам необходимо написать алгоритм, обладающий  O(log n)сложностью во время выполнения.
+    // ref: https://leetcode.com/problems/search-insert-position/description/
     public static class Program
     {
         public static void Main(string[] args)
         {
-            string sample = "((()()";
-            Console.WriteLine(sample);
-            Console.WriteLine(LongestValidParentheses(sample));
+            Console.WriteLine(SearchInsert([3, 4, 5, 6, 7, 8], 6)); // 3
             Console.ReadKey();
         }
 
-        static int LongestValidParentheses(string s)
+        static int SearchInsert(int[] nums, int target)
         {
-            const char open = '(';
+            if (nums.Length == 1)
+                return nums[0] >= target ? 0 : 1;
 
-            int max = 0;
-            var stack = new Stack<int>();
-            stack.Push(-1);
+            return SearchInsert(nums, target, 0, nums.Length - 1);
+        }
 
-            for (int i = 0; i < s.Length; i++)
+        static int SearchInsert(int[] nums, int target, int startIndex, int endIndex)
+        {
+            if ((endIndex - startIndex) < 2)
             {
-                if (s[i] == open)
-                    stack.Push(i);
-                else
-                {
-                    stack.TryPop(out int pop);
-                    if (stack.Count == 0)
-                        stack.Push(i);
-                    else
-                        max = Math.Max(max, i - stack.Peek());
-                }
+                if (nums[startIndex] >= target)
+                    return startIndex;
+
+                if (target <= nums[endIndex])
+                    return endIndex;
+
+                return endIndex + 1;
             }
 
-            return max;
+            var middleIndex = startIndex + (endIndex - startIndex) / 2;
+
+            if (nums[middleIndex] >= target)
+                return SearchInsert(nums, target, startIndex, middleIndex - 1);
+            else
+                return SearchInsert(nums, target, middleIndex + 1, endIndex);
         }
     }
 }
