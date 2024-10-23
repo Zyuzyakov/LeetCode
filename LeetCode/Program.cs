@@ -1,46 +1,33 @@
 ﻿using System;
+using System.Linq;
 
 namespace LeetCode
 {
-    // easy 35: Дано отсортированное множество различных целых чисел и целевое значение, вернуть индекс, если цель найдена.
-    // Если нет, вернуть индекс, где бы он был, если бы он был вставлен по порядку.
-    // Вам необходимо написать алгоритм, обладающий  O(log n)сложностью во время выполнения.
-    // ref: https://leetcode.com/problems/search-insert-position/description/
+    // easy 1: Дан массив целых чисел nums и целое число target, вернуть индексы двух чисел, чтобы их сумма давала target.
+    // Вы можете предположить, что каждый вход будет иметь ровно одно решение, и вы не можете использовать один и тот же элемент дважды.
+    // Можете ли вы придумать алгоритм, сложность которого меньше временной O(n^2).
+    // ref: https://leetcode.com/problems/two-sum/
     public static class Program
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine(SearchInsert([3, 4, 5, 6, 7, 8], 6)); // 3
+            TwoSum([3, 4, 2], 6).Select(i => { Console.WriteLine(i); return i; }).ToArray();
             Console.ReadKey();
         }
 
-        static int SearchInsert(int[] nums, int target)
+        static int[] TwoSum(int[] nums, int target)
         {
-            if (nums.Length == 1)
-                return nums[0] >= target ? 0 : 1;
-
-            return SearchInsert(nums, target, 0, nums.Length - 1);
-        }
-
-        static int SearchInsert(int[] nums, int target, int startIndex, int endIndex)
-        {
-            if ((endIndex - startIndex) < 2)
+            for (int i = 0; i < nums.Length; i++)
             {
-                if (nums[startIndex] >= target)
-                    return startIndex;
+                for (int j = i + 1; j < nums.Length; j++)
+                {
+                    if ((nums[i] + nums[j]) == target)
+                        return [i, j];
 
-                if (target <= nums[endIndex])
-                    return endIndex;
-
-                return endIndex + 1;
+                }
             }
 
-            var middleIndex = startIndex + (endIndex - startIndex) / 2;
-
-            if (nums[middleIndex] >= target)
-                return SearchInsert(nums, target, startIndex, middleIndex - 1);
-            else
-                return SearchInsert(nums, target, middleIndex + 1, endIndex);
+            throw new Exception("Решение не найшлось.");
         }
     }
 }
