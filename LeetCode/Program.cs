@@ -1,33 +1,80 @@
 ﻿using System;
-using System.Linq;
 
 namespace LeetCode
 {
-    // easy 1: Дан массив целых чисел nums и целое число target, вернуть индексы двух чисел, чтобы их сумма давала target.
-    // Вы можете предположить, что каждый вход будет иметь ровно одно решение, и вы не можете использовать один и тот же элемент дважды.
-    // Можете ли вы придумать алгоритм, сложность которого меньше временной O(n^2).
-    // ref: https://leetcode.com/problems/two-sum/
+    // medium 2: Вам даны два непустых связанных списка, представляющих два неотрицательных целых числа.
+    // Цифры хранятся в обратном порядке , и каждый из их узлов содержит одну цифру.
+    // Сложите два числа и верните сумму в виде связанного списка.
+    // ref: https://leetcode.com/problems/add-two-numbers/
     public static class Program
     {
         public static void Main(string[] args)
         {
-            TwoSum([3, 4, 2], 6).Select(i => { Console.WriteLine(i); return i; }).ToArray();
+            var l1 = new ListNode(2, new ListNode(4, new ListNode(9, null)));
+            var l2 = new ListNode(5, new ListNode(6, new ListNode(4, new ListNode(9))));
+            AddTwoNumbers(l1, l2);
+
             Console.ReadKey();
         }
 
-        static int[] TwoSum(int[] nums, int target)
+        static ListNode AddTwoNumbers(ListNode l1, ListNode l2)
         {
-            for (int i = 0; i < nums.Length; i++)
+            int transfer = 0;
+            ListNode result = null;
+            while (l1 != null || l2 != null)
             {
-                for (int j = i + 1; j < nums.Length; j++)
-                {
-                    if ((nums[i] + nums[j]) == target)
-                        return [i, j];
-
-                }
+                (int val, transfer) = Sum(l1?.val ?? 0, l2?.val ?? 0, transfer);
+                var nextResult = new ListNode(val, result);
+                result = nextResult;
+                l1 = l1?.next;
+                l2 = l2?.next;
             }
 
-            throw new Exception("Решение не найшлось.");
+            if (transfer != 0)
+                result = new ListNode(transfer, result);
+
+            Reverse(result, out ListNode resultFirst);
+            return resultFirst;
+        }
+
+        static ListNode Reverse(ListNode node, out ListNode first, bool isFirstCall = true)
+        {
+            bool isLast = node.next is null;
+
+            if (isLast)
+            {
+                first = node;
+                return node;
+            }
+
+            var parent = Reverse(node.next, out first, false);
+            parent.next = node;
+
+            if (isFirstCall)
+                node.next = null;
+
+            return node;
+        }
+
+        static (int val, int transfer) Sum(int val1, int val2, int prevTransfer)
+        {
+            var sum = val1 + val2 + prevTransfer;
+
+            var val = sum > 9 ? sum - 10 : sum;
+            var transfer = sum > 9 ? 1 : 0;
+
+            return (val, transfer);
+        }
+
+        public class ListNode
+        {
+            public int val;
+            public ListNode next;
+            public ListNode(int val = 0, ListNode next = null)
+            {
+                this.val = val;
+                this.next = next;
+            }
         }
     }
 }
