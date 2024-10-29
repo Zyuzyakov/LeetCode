@@ -2,53 +2,61 @@
 
 namespace LeetCode
 {
-    // medium 5: Самая длинная палиндромная подстрока.
-    // Дана строка s, вернуть самую длинную палиндромную подстроку в s.
-    // ref: https://leetcode.com/problems/longest-palindromic-substring/
+    // medium 912: Сортировка массива (quick sort).
+    // Дан массив целых чисел nums, отсортируйте массив в порядке возрастания и верните его.
+    // Вам необходимо решить задачу, не используя встроенные функции по O(nlog(n)) временной сложности и с минимально возможной пространственной сложностью.
+    // ref: https://leetcode.com/problems/sort-an-array/description/
     public static class Program
     {
+        private static Random _randomizer = new Random();
         public static void Main(string[] args)
         {
-            Console.WriteLine(LongestPalindrome("xaabacxcabaaxcabaax"));
-            Console.WriteLine(_countIn);
+            var array = SortArray([5, 2, 3, 1]);
+            Console.WriteLine(string.Join(" ", array));
             Console.ReadKey();
         }
 
-        static string _maxPalindrome = "";
-        static UInt128 _countIn = 0;
-
-        static string LongestPalindrome(string s)
+        static int[] SortArray(int[] nums)
         {
-            for (int startIndex = 0; startIndex < s.Length; startIndex++)
-            {
-                for (int endIndex = startIndex; endIndex < s.Length; endIndex++)
-                {
-                    _countIn++;
+            QSort(nums, 0, nums.Length - 1);
 
-                    int strLength = endIndex - startIndex + 1;
-                    var subStr = s.Substring(startIndex, strLength);
-                    if (subStr.Length > _maxPalindrome.Length && IsPalindrome(subStr))
-                        _maxPalindrome = subStr;
-                }
-            }
-
-            return _maxPalindrome;
+            return nums;
         }
 
-        static bool IsPalindrome(string str)
+        static void QSort(int[] nums, int start, int end)
         {
-            int start = 0;
-            int end = str.Length - 1;
+            if (start >= end)
+                return;
 
-            while (start <= end)
+            int pivotIndex = _randomizer.Next(start, end + 1);
+            var pivotValue = nums[pivotIndex];
+            int i = start - 1;
+            int j = end + 1;
+            while (true)
             {
-                if (str[start] != str[end])
-                    return false;
-                start++;
-                end--;
+                do
+                    i++;
+                while (nums[i] < pivotValue);
+
+                do
+                    j--;
+                while (nums[j] > pivotValue);
+
+                if (i >= j)
+                    break;
+
+                Swap(nums, i, j);
             }
 
-            return true;
+            QSort(nums, start, i - 1);
+            QSort(nums, i, end);
+        }
+
+        static void Swap(int[] nums, int i, int j)
+        {
+            int temp = nums[i];
+            nums[i] = nums[j];
+            nums[j] = temp;
         }
     }
 }
